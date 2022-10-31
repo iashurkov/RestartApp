@@ -13,6 +13,9 @@ struct OnboardingView: View {
     
     @AppStorage("onboarding") var isOnboardingViewActive: Bool = true
     
+    @State private var buttonWidth: Double = UIScreen.main.bounds.width - 80
+    @State private var buttonOffset: CGFloat = 0
+    
     // MARK: Body
     
     var body: some View {
@@ -74,7 +77,7 @@ struct OnboardingView: View {
                     HStack {
                         Capsule()
                             .fill(Color("ColorRed"))
-                            .frame(width: 80)
+                            .frame(width: self.buttonOffset + 80)
                         
                         Spacer()
                     } //: HStack
@@ -93,15 +96,29 @@ struct OnboardingView: View {
                         } //: ZStack
                         .foregroundColor(.white)
                         .frame(width: 80, height: 80, alignment: .center)
-                        .onTapGesture {
-                            self.isOnboardingViewActive.toggle()
-                        }
+                        .offset(x: self.buttonOffset)
+                        .gesture(
+                            DragGesture()
+                                .onChanged { gesture in
+                                    if gesture.translation.width > 0 && self.buttonOffset < (self.buttonWidth - 80) {
+                                        self.buttonOffset = gesture.translation.width
+                                    }
+                                }
+                                .onEnded { _ in
+                                    if self.buttonOffset > (self.buttonWidth / 2) {
+                                        self.buttonOffset = self.buttonWidth - 80
+                                        self.isOnboardingViewActive = false
+                                    } else {
+                                        self.buttonOffset = 0
+                                    }
+                                }
+                        ) //: Gesture Button
                         
                         Spacer()
                     } //: HStack
                     
                 } //: Footer ZStack
-                .frame(height: 80, alignment: .center)
+                .frame(width: self.buttonWidth, height: 80, alignment: .center)
                 .padding()
                 
             } //: VStack
