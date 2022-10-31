@@ -12,6 +12,7 @@ struct HomeView: View {
     // MARK: Property
     
     @AppStorage("onboarding") var isOnboardingViewActive: Bool = false
+    @State private var isAnimating: Bool = false
     
     // MARK: Body
     
@@ -27,7 +28,14 @@ struct HomeView: View {
                 Image("character-2")
                     .resizable()
                     .scaledToFit()
-                .padding()
+                    .padding()
+                    .offset(y: self.isAnimating ? 35 : -35)
+                    .animation(
+                        Animation
+                            .easeInOut(duration: 4)
+                            .repeatForever(),
+                        value: self.isAnimating
+                    )
             }
             
             // MARK: CENTER
@@ -44,7 +52,9 @@ struct HomeView: View {
             Spacer()
             
             Button(action: {
-                self.isOnboardingViewActive = true
+                withAnimation {
+                    self.isOnboardingViewActive = true
+                }
             }) {
                 Image(systemName: "arrow.triangle.2.circlepath.circle.fill")
                     .imageScale(.large)
@@ -57,6 +67,11 @@ struct HomeView: View {
             .buttonBorderShape(.capsule)
             .controlSize(.large)
         } //: VSTACK
+        .onAppear(perform: {
+            DispatchQueue.main.asyncAfter(deadline: .now() + 0.5, execute: {
+                self.isAnimating = true
+            })
+        })
     }
 }
 
